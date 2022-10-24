@@ -1,0 +1,43 @@
+<html>
+<head>
+    <link
+            rel="stylesheet"
+            href="https://bootswatch.com/5/united/bootstrap.min.css"
+    />
+</head>
+<table class="table table-sm table-bordered table-strriped" id="table">
+    <thead>
+    <tr>
+        <th data-header="barcode">A</th>
+        <th data-header="product">B</th>
+        <th data-header="unit">C</th>
+        <th data-header="quantity">D</th>
+        <th data-header="rate">E</th>
+        <th data-header="isDiscount">F</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td><input type="text" name="a"></td>
+        <td>
+            <select name="b">
+                <option value="">Select ...</option>
+                <option value="1"> One</option>
+                <option value="2"> Two</option>
+            </select>
+        </td>
+        <td><input type="checkbox" name="c"></td>
+        <td>
+
+            <input type="radio" name="d" value="Male">Male
+            <input type="radio" name="d" value="Female">Female
+
+        </td>
+        <td><input type="text" name="e"></td>
+        <td><input type="text" name="f"></td>
+    </tr>
+    </tbody>
+</table>
+
+<script src="script.js"></script>
+</html>
