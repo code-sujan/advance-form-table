@@ -43,6 +43,7 @@ function addTableRowIfNecessary(targetRowIndex, dataLength) {
 
         Array.from(cloneRow.cells).forEach(col => {
             let elem = getElemToPaste(col);
+            if(elem.type === 'checkbox') elem.checked = false;
             if (elem.type === 'radio') {
                 Array.from(getRadioElems(col, elem.name)).forEach(x => x.checked = false);
             } else {
