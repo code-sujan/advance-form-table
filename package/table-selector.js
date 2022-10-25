@@ -1,7 +1,7 @@
 const configOptions = {
     selectedClass : 'selectedCell',
     useOnClass : [],
-    skipClas : [],
+    skipClass : [],
     handleCopy : false,
     handleDelete : false
 }
@@ -39,7 +39,7 @@ function useTableSelector(config = {}) {
         let trElem = tdElem.closest("tr");
         let selected = selection[tableId];
         if (selected?.start) {
-            let preSelectedElems = getSelectedCells(tableId, selected.start, selected.end);
+            let preSelectedElems = getCells(tableId, selected.start, selected.end);
             Array.from(preSelectedElems).forEach(x => x.classList.remove(selectedClass));
         }
         addSelectionStartIndex(tableId, trElem.rowIndex, tdElem.cellIndex);
@@ -87,7 +87,7 @@ function useTableSelector(config = {}) {
                 const selected = selection[tableId];
                 if(!selected) return;
                 ev.preventDefault();
-                let selectedElems = getSelectedCells(tableId, selected.start, selected.end);
+                let selectedElems = getCells(tableId, selected.start, selected.end);
                 Array.from(selectedElems).forEach(cell => {
                     let elem = getElemToPaste(cell);
                     if(elem.type === 'checkbox') elem.checked = false;
@@ -129,19 +129,19 @@ function useTableSelector(config = {}) {
     function displaySelectedCell(tableId) {
         let selected = selection[tableId];
         if (selected.prevEnd) {
-            let removedElems = getSelectedCells(tableId, selected.start, selected.prevEnd);
+            let removedElems = getCells(tableId, selected.start, selected.prevEnd);
             Array.from(removedElems).forEach(x => x.classList.remove(selectedClass));
         }
-        let elems = getSelectedCells(tableId, selected.start, selected.end);
+        let elems = getCells(tableId, selected.start, selected.end);
         Array.from(elems).forEach(x => x.classList.add(selectedClass));
     }
 
-    function getSelectedCells(tableId, start, end) {
-        return getRowWiseSelectedCells(tableId, start, end)
+    function getCells(tableId, start, end) {
+        return getRowWiseCells(tableId, start, end)
             .reduce((list, x) => list.concat(x), []);
     }
 
-    function getRowWiseSelectedCells(tableId, start, end) {
+    function getRowWiseCells(tableId, start, end) {
         const tableElem = document.querySelector(`#${tableId}`);
         let arr = [];
         if (!start) return arr;
@@ -159,9 +159,15 @@ function useTableSelector(config = {}) {
         }
     }
 
+    function getSelectedCells(tableId){
+        const selected = selection[tableId];
+        if(!selected) return null;
+        return getCells(tableId, selected.start, selected.end);
+    }
+    
     function getSelectedValues(tableId, textRetriver = null) {
         const selected = selection[tableId];
-        const selectedElems = getRowWiseSelectedCells(tableId, selected.start, selected.end);
+        const selectedElems = getRowWiseCells(tableId, selected.start, selected.end);
         let rowWiseValues = selectedElems.map(x => x.map(x => getValueFromCell(x, textRetriver)).join('\t'));
         return rowWiseValues.join("\r\n");
     }
