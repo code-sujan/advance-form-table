@@ -1,0 +1,22 @@
+{
+  "name": "table-data-selector",
+  "version": "1.0.0",
+  "description": "Initial",
+  "main": "table-selector.js",
+  "scripts": {
+    "test": "exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/code-sujan/advance-form-table.git"
+  },
+  "keywords": [
+    "table-selector"
+  ],
+  "author": "Sujan Sapkota",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/code-sujan/advance-form-table/issues"
+  },
+  "homepage": "https://github.com/code-sujan/advance-form-table#readme"
+}
