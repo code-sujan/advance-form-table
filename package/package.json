@@ -1,22 +1,24 @@
 {
-  "name": "table-data-selector",
-  "version": "1.0.1",
-  "description": "Initial",
-  "main": "table-selector.js",
-  "scripts": {
-    "test": "exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/code-sujan/advance-form-table.git"
-  },
-  "keywords": [
-    "table-selector"
-  ],
-  "author": "Sujan Sapkota",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/code-sujan/advance-form-table/issues"
-  },
-  "homepage": "https://github.com/code-sujan/advance-form-table#readme"
+    "name": "table-data-selector",
+    "version": "1.1.0",
+    "description": "Select necessary rows / cols, copy, paste to excel",
+    "main": "table-selector.js",
+    "scripts": {
+        "test": "exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/code-sujan/advance-form-table.git"
+    },
+    "keywords": [
+        "table-selector",
+        "table-copy",
+        "table-to-excel"
+    ],
+    "author": "Sujan Sapkota",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/code-sujan/advance-form-table/issues"
+    },
+    "homepage": "https://github.com/code-sujan/advance-form-table#readme"
 }
