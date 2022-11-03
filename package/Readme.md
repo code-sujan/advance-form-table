@@ -17,6 +17,9 @@ Demo : https://advance-form-table.netlify.app
    ```
 
 ## Usages
+>Use `CTRL + Left mouse click` to begin selection, Hover with` CTRL + Left mouse click` to continue selection
+> Keyboard navigation `Shift + Arrow key` can be done once selection has started
+
 ```js
 window.addEventListener("DOMContentLoaded", (ev) => {
         const tableSelector = useTableSelector();

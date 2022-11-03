@@ -1,6 +1,6 @@
 {
   "name": "table-data-selector",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Initial",
   "main": "table-selector.js",
   "scripts": {

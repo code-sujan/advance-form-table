@@ -72,23 +72,42 @@ function useTableSelector(config = {}) {
     });
 
     document.body.addEventListener('keydown', (ev) => {
-        if(!ev.shiftKey) return;
-        console.log(ev.code);
+        if(!ev.shiftKey || !lastActiveTableId) return;
+        let selected = getActiveSection(lastActiveTableId);
+        const tableElem = document.querySelector(`#${lastActiveTableId}`);
+        const maxCellIndex = tableElem.rows[rowIndex(selected.end)].cells.length - 1;
+        const maxRowIndex = tableElem.rows.length;
         if(ev.code === "ArrowLeft"){
-            let selected = getActiveSection(lastActiveTableId);
             selected.prevEnd = selected.end;
+            if(cellIndex(selected.end) === 0) return;
             selected.end = rowIndex(selected.end)*Multiplier+cellIndex(selected.end)-1;
             displaySelectedCell(lastActiveTableId);
         }
-    })
+        if(ev.code === "ArrowRight"){
+            let selected = getActiveSection(lastActiveTableId);
+            selected.prevEnd = selected.end;
+            if(cellIndex(selected.end) === maxCellIndex) return;
+            selected.end = rowIndex(selected.end)*Multiplier+cellIndex(selected.end)+1;
+            displaySelectedCell(lastActiveTableId);
+        }
+        if(ev.code === "ArrowUp"){
+            selected.prevEnd = selected.end;
+            if(rowIndex(selected.end) === 1) return;
+            selected.end -= Multiplier;
+            displaySelectedCell(lastActiveTableId);
+        }
+        if(ev.code === "ArrowDown"){
+            let selected = getActiveSection(lastActiveTableId);
+            selected.prevEnd = selected.end;
+            if(rowIndex(selected.end) === maxRowIndex) return;
+            selected.end += Multiplier
+            displaySelectedCell(lastActiveTableId);
+        }
+    });
+
     if(config.handleCopy){
         document.body.addEventListener('copy', (ev) => {
-            let target = ev.target;
-            if(target.tagName !== 'table'){
-                target = target.closest('table');
-            }
-            if(!target) return;
-            const tableId = target.id;
+            const tableId = lastActiveTableId;
             if(!selection[tableId]) return;
             ev.clipboardData.setData('text/plain', getSelectedValues(tableId));
             ev.preventDefault();
@@ -98,7 +117,7 @@ function useTableSelector(config = {}) {
     if(config.handleDelete){
         document.body.addEventListener('keydown', (ev) => {
             if(ev.key === 'Delete'){
-                let tableId = getTableId(ev);
+                let tableId = lastActiveTableId;
                 const selected = selection[tableId];
                 if(!selected) return;
                 ev.preventDefault();
@@ -132,7 +151,7 @@ function useTableSelector(config = {}) {
     function addSelectionStartIndex(tableId, rowIndex, cellIndex) {
         selection[tableId] = {
             start: rowIndex * Multiplier + cellIndex,
-            end: null,
+            end: rowIndex * Multiplier + cellIndex,
             prevEnd: null
         }
         lastActiveTableId = tableId;
