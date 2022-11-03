@@ -6,11 +6,21 @@ const configOptions = {
     handleDelete : false
 }
 
+function getTableId(event) {
+    let target = event.target;
+    if(target.tagName !== 'table'){
+        target = target.closest('table');
+    }
+    if(!target) return;
+    return target.id;
+}
+
 function useTableSelector(config = {}) {
    config = { ...configOptions, ...config};
     let selection = [];
     let count = 1;
     let selectedClass = config.selectedClass;
+    let lastActiveTableId = "";
 
     const Multiplier = 100000;
 
@@ -61,6 +71,16 @@ function useTableSelector(config = {}) {
         addSelectionEndIndex(tableId, trElem.rowIndex, tdElem.cellIndex);
     });
 
+    document.body.addEventListener('keydown', (ev) => {
+        if(!ev.shiftKey) return;
+        console.log(ev.code);
+        if(ev.code === "ArrowLeft"){
+            let selected = getActiveSection(lastActiveTableId);
+            selected.prevEnd = selected.end;
+            selected.end = rowIndex(selected.end)*Multiplier+cellIndex(selected.end)-1;
+            displaySelectedCell(lastActiveTableId);
+        }
+    })
     if(config.handleCopy){
         document.body.addEventListener('copy', (ev) => {
             let target = ev.target;
@@ -78,12 +98,7 @@ function useTableSelector(config = {}) {
     if(config.handleDelete){
         document.body.addEventListener('keydown', (ev) => {
             if(ev.key === 'Delete'){
-                let target = ev.target;
-                if(target.tagName !== 'table'){
-                    target = target.closest('table');
-                }
-                if(!target) return;
-                const tableId = target.id;
+                let tableId = getTableId(ev);
                 const selected = selection[tableId];
                 if(!selected) return;
                 ev.preventDefault();
@@ -101,6 +116,10 @@ function useTableSelector(config = {}) {
         })
     }
 
+    function getActiveSection(tableId){
+        return selection[tableId];
+    }
+
     function getElemToPaste(elem) {
         const inputElems = elem.getElementsByTagName('input');
         if (inputElems.length > 0) return inputElems[0];
@@ -116,6 +135,7 @@ function useTableSelector(config = {}) {
             end: null,
             prevEnd: null
         }
+        lastActiveTableId = tableId;
         displaySelectedCell(tableId);
     }
 
@@ -137,8 +157,9 @@ function useTableSelector(config = {}) {
     }
 
     function getCells(tableId, start, end) {
-        return getRowWiseCells(tableId, start, end)
-            .reduce((list, x) => list.concat(x), []);
+         let list = getRowWiseCells(tableId, start, end);
+         console.log(list);
+         return list.reduce((list, x) => list.concat(x), []);
     }
 
     function getRowWiseCells(tableId, start, end) {
@@ -147,6 +168,7 @@ function useTableSelector(config = {}) {
         if (!start) return arr;
         if (!end || start === end) {
             arr[rowIndex(start)] = tableElem.rows[rowIndex(start)].cells[cellIndex(start)];
+            return arr;
         } else {
             const maxRow = Math.max(rowIndex(start), rowIndex(end));
             const minRow = Math.min(rowIndex(start), rowIndex(end));
