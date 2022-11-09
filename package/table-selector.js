@@ -98,10 +98,13 @@ function useTableSelector(config = {}) {
         }
         if(ev.code === "ArrowDown"){
             let selected = getActiveSection(lastActiveTableId);
-            selected.prevEnd = selected.end;
             if(rowIndex(selected.end) === maxRowIndex) return;
+            selected.prevEnd = selected.end;
             selected.end += Multiplier
             displaySelectedCell(lastActiveTableId);
+
+            let lastCell = tableElem.rows[rowIndex(selected.end)].cells[cellIndex(selected.end)];
+            if(!isVisibleOnViewPort(lastCell)) displayOnViewPort(lastCell);
         }
     });
 
@@ -177,7 +180,6 @@ function useTableSelector(config = {}) {
 
     function getCells(tableId, start, end) {
          let list = getRowWiseCells(tableId, start, end);
-         console.log(list);
          return list.reduce((list, x) => list.concat(x), []);
     }
 
@@ -241,6 +243,25 @@ function useTableSelector(config = {}) {
         getSelectedCells,
         getSelectedValues
     };
+}
+
+function isVisibleOnViewPort(elem){
+    const elemHeight = elem.offsetHeight;
+    const elemWidth = elem.offsetWidth;
+    let data = elem.getBoundingClientRect();
+    return (data.top >= -elemHeight
+        && data.left >= -elemWidth
+        && data.right <= (window.innerWidth || document.documentElement.clientWidth)
+        && data.bottom <= (window.innerHeight || document.documentElement.clientHeight))
+}
+
+function displayOnViewPort(elem){
+    let data = elem.getBoundingClientRect();
+   window.scrollBy({
+       top : (data.bottom - window.innerHeight) + elem.offsetHeight,
+       left : data.left - data.x,
+       behavior : "smooth"
+   });
 }
 
 
