@@ -23,17 +23,24 @@ function useTableSelector(config = {}) {
     let lastActiveTableId = "";
 
     const Multiplier = 100000;
+    const Auto_Table_Id_Prefix = `auto-table-id-for-copy-`;
 
     document.body.addEventListener('mousedown', (e) => {
         if (!e.ctrlKey) {
             selection = [];
             count = 1;
+            if(lastActiveTableId.startsWith(Auto_Table_Id_Prefix)){
+                let prevTableElem = document.getElementById(lastActiveTableId);
+                prevTableElem.id = "";
+            }
+            lastActiveTableId = "";
             Array.from(document.querySelectorAll("." + selectedClass)).forEach(x => x.classList.remove(selectedClass));
             return;
         }
 
         let targetElem = e.target;
-        let tdElem = (targetElem.tagName === 'td') ? targetElem :  targetElem.closest("td");
+        let tdElem = (targetElem.tagName === ('td' || 'th')) ? targetElem :  targetElem.closest("td, th");
+        console.log(tdElem.textContent);
         if (!tdElem) return;
         let tableElem = tdElem.closest('table');
         if (!tableElem) return;
@@ -41,9 +48,10 @@ function useTableSelector(config = {}) {
 
         let tableId = tableElem.id;
         if (!tableId) {
-            tableId = `auto-table-id-for-copy-${count}`
+            tableId = `${Auto_Table_Id_Prefix}${count}`
             tableElem.id = tableId;
         }
+        lastActiveTableId = tableId;
         count++;
 
         let trElem = tdElem.closest("tr");
@@ -59,7 +67,7 @@ function useTableSelector(config = {}) {
         if (!e.ctrlKey) return;
         if (!e.buttons) return;
         let targetElem = e.target;
-        let tdElem = (targetElem.tagName === 'td') ? targetElem :  targetElem.closest("td");
+        let tdElem = (targetElem.tagName === ('td' || 'th')) ? targetElem :  targetElem.closest("td, th");
         if (!tdElem) return;
         let tableElem = tdElem.closest('table');
         if (!tableElem) return;
@@ -73,39 +81,34 @@ function useTableSelector(config = {}) {
 
     document.body.addEventListener('keydown', (ev) => {
         if(!ev.shiftKey || !lastActiveTableId) return;
+        if(ev.code !== "ArrowLeft" && ev.code !== "ArrowRight" && ev.code !== "ArrowUp" && ev.code !== "ArrowDown") return;
         let selected = getActiveSection(lastActiveTableId);
         const tableElem = document.querySelector(`#${lastActiveTableId}`);
         const maxCellIndex = tableElem.rows[rowIndex(selected.end)].cells.length - 1;
-        const maxRowIndex = tableElem.rows.length;
+        const maxRowIndex = tableElem.rows.length - 1;
         if(ev.code === "ArrowLeft"){
             selected.prevEnd = selected.end;
             if(cellIndex(selected.end) === 0) return;
             selected.end = rowIndex(selected.end)*Multiplier+cellIndex(selected.end)-1;
-            displaySelectedCell(lastActiveTableId);
         }
         if(ev.code === "ArrowRight"){
             let selected = getActiveSection(lastActiveTableId);
             selected.prevEnd = selected.end;
             if(cellIndex(selected.end) === maxCellIndex) return;
             selected.end = rowIndex(selected.end)*Multiplier+cellIndex(selected.end)+1;
-            displaySelectedCell(lastActiveTableId);
         }
         if(ev.code === "ArrowUp"){
             selected.prevEnd = selected.end;
             if(rowIndex(selected.end) === 1) return;
             selected.end -= Multiplier;
-            displaySelectedCell(lastActiveTableId);
         }
         if(ev.code === "ArrowDown"){
             let selected = getActiveSection(lastActiveTableId);
             if(rowIndex(selected.end) === maxRowIndex) return;
             selected.prevEnd = selected.end;
             selected.end += Multiplier
-            displaySelectedCell(lastActiveTableId);
-
-            let lastCell = tableElem.rows[rowIndex(selected.end)].cells[cellIndex(selected.end)];
-            if(!isVisibleOnViewPort(lastCell)) displayOnViewPort(lastCell);
         }
+        displaySelectedCell(lastActiveTableId);
     });
 
     if(config.handleCopy){
@@ -176,6 +179,10 @@ function useTableSelector(config = {}) {
         }
         let elems = getCells(tableId, selected.start, selected.end);
         Array.from(elems).forEach(x => x.classList.add(selectedClass));
+
+        const tableElem = document.querySelector(`#${lastActiveTableId}`);
+        let lastCell = tableElem.rows[rowIndex(selected.end)].cells[cellIndex(selected.end)];
+        MakeVisibleOnViewPort(lastCell);
     }
 
     function getCells(tableId, start, end) {
@@ -245,21 +252,45 @@ function useTableSelector(config = {}) {
     };
 }
 
-function isVisibleOnViewPort(elem){
-    const elemHeight = elem.offsetHeight;
-    const elemWidth = elem.offsetWidth;
+const Extend_X_Scroll_Length = 50;
+const Extend_Y_Top_Scroll_Length = 20;
+const Extend_Y_Bottom_Scroll_Length = 30;
+function MakeVisibleOnViewPort(elem){
     let data = elem.getBoundingClientRect();
-    return (data.top >= -elemHeight
-        && data.left >= -elemWidth
-        && data.right <= (window.innerWidth || document.documentElement.clientWidth)
-        && data.bottom <= (window.innerHeight || document.documentElement.clientHeight))
+    if(data.left - data.width - Extend_X_Scroll_Length <= -data.width) scrollLeft(data);
+    else if(data.top - data.height - Extend_Y_Top_Scroll_Length <= -data.height) scrollUp(data);
+    else if(Math.floor(data.right) + Extend_X_Scroll_Length >= (window.innerWidth || document.documentElement.clientWidth)) scrollRight(data);
+    else if(data.bottom + Extend_Y_Bottom_Scroll_Length >= (window.innerHeight || document.documentElement.clientHeight)) scrollDown(data);
 }
 
-function displayOnViewPort(elem){
-    let data = elem.getBoundingClientRect();
+function scrollLeft(data){
+    window.scrollBy({
+        top : 0,
+        left : Math.floor(data.left) - Extend_X_Scroll_Length,
+        behavior : "smooth"
+    });
+}
+
+function scrollUp(data){
+    window.scrollBy({
+        top : Math.floor(data.top) - Extend_Y_Top_Scroll_Length,
+        left : 0,
+        behavior : "smooth"
+    });
+}
+
+function scrollRight(data){
+    window.scrollBy({
+        top : 0,
+        left : Math.floor(data.right - window.innerWidth) + Extend_X_Scroll_Length,
+        behavior : "smooth"
+    });
+}
+
+function scrollDown(data){
    window.scrollBy({
-       top : (data.bottom - window.innerHeight) + elem.offsetHeight,
-       left : data.left - data.x,
+       top : Math.floor(data.bottom - window.innerHeight) + Extend_Y_Bottom_Scroll_Length,
+       left : 0,
        behavior : "smooth"
    });
 }

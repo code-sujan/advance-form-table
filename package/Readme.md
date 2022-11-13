@@ -1,6 +1,7 @@
 # Table Data Selector
 > `Table Data Selector` is a library that helps to select data, copy or delete from table / form on table.
-Copied data can be directly pasted to excel.
+
+> Copied data can be directly pasted to excel.
 It also provides selected cells and selected values which can be used as needed.
 
 Demo : https://advance-form-table.netlify.app
@@ -20,6 +21,7 @@ Demo : https://advance-form-table.netlify.app
 >Use `CTRL + Left mouse click` to begin selection, Hover with` CTRL + Left mouse click` to continue selection.
 
 > Keyboard navigation `Shift + Arrow key` can be done once selection has started.
+
 
 ```js
 window.addEventListener("DOMContentLoaded", (ev) => {
