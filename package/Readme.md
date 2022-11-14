@@ -22,10 +22,15 @@ Demo : https://advance-form-table.netlify.app
 
 > Keyboard navigation `Shift + Arrow key` can be done once selection has started.
 
+```html
+<link rel="stylesheet" href="table-data-selector/table-selector.css"/>
+```
 
 ```js
+import useTableSelector from "table-data-selector/table-selector.js";
+
 window.addEventListener("DOMContentLoaded", (ev) => {
-        const tableSelector = useTableSelector();
+        const tableSelector = useTableSelector(config);
     })
 
 ```
@@ -34,10 +39,12 @@ window.addEventListener("DOMContentLoaded", (ev) => {
 ```js
 {
     selectedClass : null,   // class applied on selected cell
-    useOnClass : [],        // not applied yet
-    skipClass : [],         // not applied yet
-    handleCopy : false,     // handle copy event when set true
-    handleDelete : false    // handle delete keypress when set true
+    useOnClass: [],        // not applied yet
+    skipClass: [],         // not applied yet
+    handleCopy: false,     // handle copy event when set true
+    handleDelete: false,    // handle delete keypress when set true,
+    textRetriver: (elem) => elem.textContent,
+    scrollableContainer: window   
 }
 
 ```

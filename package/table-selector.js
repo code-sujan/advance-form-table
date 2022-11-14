@@ -15,7 +15,7 @@ function getTableId(event) {
     return target.id;
 }
 
-function useTableSelector(config = {}) {
+const useTableSelector = (config = {}) => {
    config = { ...configOptions, ...config};
     let selection = [];
     let count = 1;
@@ -295,4 +295,5 @@ function scrollDown(data){
    });
 }
 
+export default useTableSelector;
 
