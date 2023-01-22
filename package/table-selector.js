@@ -40,7 +40,6 @@ const useTableSelector = (config = {}) => {
 
         let targetElem = e.target;
         let tdElem = (targetElem.tagName === ('td' || 'th')) ? targetElem :  targetElem.closest("td, th");
-        console.log(tdElem.textContent);
         if (!tdElem) return;
         let tableElem = tdElem.closest('table');
         if (!tableElem) return;
@@ -195,7 +194,7 @@ const useTableSelector = (config = {}) => {
         let arr = [];
         if (!start) return arr;
         if (!end || start === end) {
-            arr[rowIndex(start)] = tableElem.rows[rowIndex(start)].cells[cellIndex(start)];
+            arr[rowIndex(start)] = [tableElem.rows[rowIndex(start)].cells[cellIndex(start)]];
             return arr;
         } else {
             const maxRow = Math.max(rowIndex(start), rowIndex(end));
