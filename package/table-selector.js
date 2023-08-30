@@ -5,7 +5,8 @@ const configOptions = {
     handleCopy: false,
     handleDelete: false,
     textRetriever: (x) => x.textContent,
-    scrollableElem: window
+    scrollableElem: window,
+    summaryClass: 'table-selector-summary-display'
 }
 
 const useTableSelector = (config = {}) => {
@@ -19,7 +20,7 @@ const useTableSelector = (config = {}) => {
     const Auto_Table_Id_Prefix = `auto-table-id-for-copy-`;
 
     document.body.addEventListener('mousedown', (e) => {
-        if (!e.ctrlKey) {
+        if (!e.ctrlKey && !e.target.closest(`.${config.summaryClass}`)) {
             selection = [];
             count = 1;
             if (lastActiveTableId.startsWith(Auto_Table_Id_Prefix)) {

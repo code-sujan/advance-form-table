@@ -44,13 +44,15 @@ window.addEventListener("DOMContentLoaded", (ev) => {
     handleCopy: false,     // handle copy event when set true
     handleDelete: false,    // handle delete keypress when set true,
     textRetriver: (elem) => elem.textContent,
-    scrollableElem: window
+    scrollableElem: window,
+    summaryClass : 'table-selector-summary-display'
 }
 
 ```
 
-### Emits
-Emits summary info with event `selected-summary` on change of selected cells
+### Summary Info
+- Emits summary info with event `selected-summary` on change of selected cells
+- Use `summaryClass` in your view to display summary info. It allows continue selection of table cells while copying summary value.
 ```js
 {
     tableId: tableId,
