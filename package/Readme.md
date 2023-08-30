@@ -49,6 +49,18 @@ window.addEventListener("DOMContentLoaded", (ev) => {
 
 ```
 
+### Emits
+Emits summary info with event `selected-summary` on change of selected cells
+```js
+{
+    tableId: tableId,
+    sum: 0,
+    average: 0,
+    count: 0,
+    hasValue: false
+}
+````
+
 ### Exposed Methods
 ```js
 

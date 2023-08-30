@@ -198,7 +198,7 @@ const useTableSelector = (config = {}) => {
             result.count = count;
             result.hasValue = true;
         }
-        document.dispatchEvent(new CustomEvent('table-summary', {detail: result, bubbles: true}));
+        document.dispatchEvent(new CustomEvent('selected-summary', {detail: result, bubbles: true}));
     }
 
     function getCells(tableId, start, end) {

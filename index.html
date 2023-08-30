@@ -89,7 +89,7 @@
             elem.parentNode.appendChild(elem.cloneNode(true));
         }
 
-        document.addEventListener('table-summary', (e) => {
+        document.addEventListener('selected-summary', (e) => {
             document.getElementById("average").innerText = e.detail.average;
             document.getElementById("count").innerText = e.detail.count;
             document.getElementById("sum").innerText = e.detail.sum;
