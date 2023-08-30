@@ -107,6 +107,7 @@ const useTableSelector = (config = {}) => {
 
     if (config.handleCopy) {
         document.body.addEventListener('copy', (ev) => {
+            if(ev.target.closest(`.${config.summaryClass}`)) return;
             const tableId = lastActiveTableId;
             if (!selection[tableId]) return;
             ev.clipboardData.setData('text/plain', getSelectedValues(tableId));

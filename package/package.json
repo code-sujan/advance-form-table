@@ -1,6 +1,6 @@
 {
     "name": "table-data-selector",
-    "version": "1.5.0",
+    "version": "1.6.0",
     "description": "Select necessary rows / cols, copy, paste to excel",
     "main": "table-selector.js",
     "type": "module",
@@ -14,7 +14,9 @@
     "keywords": [
         "table-selector",
         "table-copy",
-        "table-to-excel"
+        "table-to-excel",
+        "excel table",
+        "excel like table"
     ],
     "author": "Sujan Sapkota",
     "license": "ISC",
