@@ -1,6 +1,6 @@
 {
     "name": "table-data-selector",
-    "version": "1.4.0",
+    "version": "1.5.0",
     "description": "Select necessary rows / cols, copy, paste to excel",
     "main": "table-selector.js",
     "type": "module",
