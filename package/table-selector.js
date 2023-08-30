@@ -1,22 +1,14 @@
 const configOptions = {
-    selectedClass : 'selectedCell',
-    useOnClass : [],
-    skipClass : [],
-    handleCopy : false,
-    handleDelete : false
-}
-
-function getTableId(event) {
-    let target = event.target;
-    if(target.tagName !== 'table'){
-        target = target.closest('table');
-    }
-    if(!target) return;
-    return target.id;
+    selectedClass: 'selectedCell',
+    useOnClass: [],
+    skipClass: [],
+    handleCopy: false,
+    handleDelete: false,
+    textRetriever: null,
 }
 
 const useTableSelector = (config = {}) => {
-   config = { ...configOptions, ...config};
+    config = {...configOptions, ...config};
     let selection = [];
     let count = 1;
     let selectedClass = config.selectedClass;
@@ -29,7 +21,7 @@ const useTableSelector = (config = {}) => {
         if (!e.ctrlKey) {
             selection = [];
             count = 1;
-            if(lastActiveTableId.startsWith(Auto_Table_Id_Prefix)){
+            if (lastActiveTableId.startsWith(Auto_Table_Id_Prefix)) {
                 let prevTableElem = document.getElementById(lastActiveTableId);
                 prevTableElem.id = "";
             }
@@ -39,7 +31,7 @@ const useTableSelector = (config = {}) => {
         }
 
         let targetElem = e.target;
-        let tdElem = (targetElem.tagName === ('td' || 'th')) ? targetElem :  targetElem.closest("td, th");
+        let tdElem = (targetElem.tagName === ('td' || 'th')) ? targetElem : targetElem.closest("td, th");
         if (!tdElem) return;
         let tableElem = tdElem.closest('table');
         if (!tableElem) return;
@@ -66,7 +58,7 @@ const useTableSelector = (config = {}) => {
         if (!e.ctrlKey) return;
         if (!e.buttons) return;
         let targetElem = e.target;
-        let tdElem = (targetElem.tagName === ('td' || 'th')) ? targetElem :  targetElem.closest("td, th");
+        let tdElem = (targetElem.tagName === ('td' || 'th')) ? targetElem : targetElem.closest("td, th");
         if (!tdElem) return;
         let tableElem = tdElem.closest('table');
         if (!tableElem) return;
@@ -79,57 +71,57 @@ const useTableSelector = (config = {}) => {
     });
 
     document.body.addEventListener('keydown', (ev) => {
-        if(!ev.shiftKey || !lastActiveTableId) return;
-        if(ev.code !== "ArrowLeft" && ev.code !== "ArrowRight" && ev.code !== "ArrowUp" && ev.code !== "ArrowDown") return;
+        if (!ev.shiftKey || !lastActiveTableId) return;
+        if (ev.code !== "ArrowLeft" && ev.code !== "ArrowRight" && ev.code !== "ArrowUp" && ev.code !== "ArrowDown") return;
         let selected = getActiveSection(lastActiveTableId);
         const tableElem = document.querySelector(`#${lastActiveTableId}`);
         const maxCellIndex = tableElem.rows[rowIndex(selected.end)].cells.length - 1;
         const maxRowIndex = tableElem.rows.length - 1;
-        if(ev.code === "ArrowLeft"){
+        if (ev.code === "ArrowLeft") {
             selected.prevEnd = selected.end;
-            if(cellIndex(selected.end) === 0) return;
-            selected.end = rowIndex(selected.end)*Multiplier+cellIndex(selected.end)-1;
+            if (cellIndex(selected.end) === 0) return;
+            selected.end = rowIndex(selected.end) * Multiplier + cellIndex(selected.end) - 1;
         }
-        if(ev.code === "ArrowRight"){
+        if (ev.code === "ArrowRight") {
             let selected = getActiveSection(lastActiveTableId);
             selected.prevEnd = selected.end;
-            if(cellIndex(selected.end) === maxCellIndex) return;
-            selected.end = rowIndex(selected.end)*Multiplier+cellIndex(selected.end)+1;
+            if (cellIndex(selected.end) === maxCellIndex) return;
+            selected.end = rowIndex(selected.end) * Multiplier + cellIndex(selected.end) + 1;
         }
-        if(ev.code === "ArrowUp"){
+        if (ev.code === "ArrowUp") {
             selected.prevEnd = selected.end;
-            if(rowIndex(selected.end) === 1) return;
+            if (rowIndex(selected.end) === 1) return;
             selected.end -= Multiplier;
         }
-        if(ev.code === "ArrowDown"){
+        if (ev.code === "ArrowDown") {
             let selected = getActiveSection(lastActiveTableId);
-            if(rowIndex(selected.end) === maxRowIndex) return;
+            if (rowIndex(selected.end) === maxRowIndex) return;
             selected.prevEnd = selected.end;
             selected.end += Multiplier
         }
         displaySelectedCell(lastActiveTableId);
     });
 
-    if(config.handleCopy){
+    if (config.handleCopy) {
         document.body.addEventListener('copy', (ev) => {
             const tableId = lastActiveTableId;
-            if(!selection[tableId]) return;
+            if (!selection[tableId]) return;
             ev.clipboardData.setData('text/plain', getSelectedValues(tableId));
             ev.preventDefault();
         })
     }
 
-    if(config.handleDelete){
+    if (config.handleDelete) {
         document.body.addEventListener('keydown', (ev) => {
-            if(ev.key === 'Delete'){
+            if (ev.key === 'Delete') {
                 let tableId = lastActiveTableId;
                 const selected = selection[tableId];
-                if(!selected) return;
+                if (!selected) return;
                 ev.preventDefault();
                 let selectedElems = getCells(tableId, selected.start, selected.end);
                 Array.from(selectedElems).forEach(cell => {
                     let elem = getElemToPaste(cell);
-                    if(elem.type === 'checkbox') elem.checked = false;
+                    if (elem.type === 'checkbox') elem.checked = false;
                     if (elem.type === 'radio') {
                         Array.from(getRadioElems(cell, elem.name)).forEach(x => x.checked = false);
                     } else {
@@ -140,7 +132,7 @@ const useTableSelector = (config = {}) => {
         })
     }
 
-    function getActiveSection(tableId){
+    function getActiveSection(tableId) {
         return selection[tableId];
     }
 
@@ -181,12 +173,29 @@ const useTableSelector = (config = {}) => {
 
         const tableElem = document.querySelector(`#${lastActiveTableId}`);
         let lastCell = tableElem.rows[rowIndex(selected.end)].cells[cellIndex(selected.end)];
+        emitSummaryInfo(tableId, elems);
         MakeVisibleOnViewPort(lastCell);
     }
 
+    function emitSummaryInfo(tableId, cells) {
+        if(!cells || cells.length <=1) return;
+        let list = Array.from(cells).map(x => Number.parseFloat(getValueFromCell(x, config.textRetriever)));
+        const count = list.length;
+        list = list.filter(x => !isNaN(x));
+        const numCount = list.length;
+        const sum = list.reduce((res, item) => res + item, 0);
+        const result = {
+            tableId: tableId,
+            sum: sum,
+            average: sum / numCount,
+            count: count
+        }
+        document.dispatchEvent(new CustomEvent('table-summary', {detail: result, bubbles: true}));
+    }
+
     function getCells(tableId, start, end) {
-         let list = getRowWiseCells(tableId, start, end);
-         return list.reduce((list, x) => list.concat(x), []);
+        let list = getRowWiseCells(tableId, start, end);
+        return list.reduce((list, x) => list.concat(x), []);
     }
 
     function getRowWiseCells(tableId, start, end) {
@@ -208,12 +217,12 @@ const useTableSelector = (config = {}) => {
         }
     }
 
-    function getSelectedCells(tableId){
+    function getSelectedCells(tableId) {
         const selected = selection[tableId];
-        if(!selected) return null;
+        if (!selected) return null;
         return getCells(tableId, selected.start, selected.end);
     }
-    
+
     function getSelectedValues(tableId, textRetriver = null) {
         const selected = selection[tableId];
         const selectedElems = getRowWiseCells(tableId, selected.start, selected.end);
@@ -254,44 +263,45 @@ const useTableSelector = (config = {}) => {
 const Extend_X_Scroll_Length = 50;
 const Extend_Y_Top_Scroll_Length = 20;
 const Extend_Y_Bottom_Scroll_Length = 30;
-function MakeVisibleOnViewPort(elem){
+
+function MakeVisibleOnViewPort(elem) {
     let data = elem.getBoundingClientRect();
-    if(data.left - data.width - Extend_X_Scroll_Length <= -data.width) scrollLeft(data);
-    else if(data.top - data.height - Extend_Y_Top_Scroll_Length <= -data.height) scrollUp(data);
-    else if(Math.floor(data.right) + Extend_X_Scroll_Length >= (window.innerWidth || document.documentElement.clientWidth)) scrollRight(data);
-    else if(data.bottom + Extend_Y_Bottom_Scroll_Length >= (window.innerHeight || document.documentElement.clientHeight)) scrollDown(data);
+    if (data.left - data.width - Extend_X_Scroll_Length <= -data.width) scrollLeft(data);
+    else if (data.top - data.height - Extend_Y_Top_Scroll_Length <= -data.height) scrollUp(data);
+    else if (Math.floor(data.right) + Extend_X_Scroll_Length >= (window.innerWidth || document.documentElement.clientWidth)) scrollRight(data);
+    else if (data.bottom + Extend_Y_Bottom_Scroll_Length >= (window.innerHeight || document.documentElement.clientHeight)) scrollDown(data);
 }
 
-function scrollLeft(data){
+function scrollLeft(data) {
     window.scrollBy({
-        top : 0,
-        left : Math.floor(data.left) - Extend_X_Scroll_Length,
-        behavior : "smooth"
+        top: 0,
+        left: Math.floor(data.left) - Extend_X_Scroll_Length,
+        behavior: "smooth"
     });
 }
 
-function scrollUp(data){
+function scrollUp(data) {
     window.scrollBy({
-        top : Math.floor(data.top) - Extend_Y_Top_Scroll_Length,
-        left : 0,
-        behavior : "smooth"
+        top: Math.floor(data.top) - Extend_Y_Top_Scroll_Length,
+        left: 0,
+        behavior: "smooth"
     });
 }
 
-function scrollRight(data){
+function scrollRight(data) {
     window.scrollBy({
-        top : 0,
-        left : Math.floor(data.right - window.innerWidth) + Extend_X_Scroll_Length,
-        behavior : "smooth"
+        top: 0,
+        left: Math.floor(data.right - window.innerWidth) + Extend_X_Scroll_Length,
+        behavior: "smooth"
     });
 }
 
-function scrollDown(data){
-   window.scrollBy({
-       top : Math.floor(data.bottom - window.innerHeight) + Extend_Y_Bottom_Scroll_Length,
-       left : 0,
-       behavior : "smooth"
-   });
+function scrollDown(data) {
+    window.scrollBy({
+        top: Math.floor(data.bottom - window.innerHeight) + Extend_Y_Bottom_Scroll_Length,
+        left: 0,
+        behavior: "smooth"
+    });
 }
 
 export default useTableSelector;
