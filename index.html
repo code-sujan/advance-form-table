@@ -45,6 +45,7 @@
     Average: <span id="average"></span>
     Count: <span id="count"></span>
     Sum: <span id="sum"></span>
+    Has-Value: <span id="hasValue"></span>
 </div>
 <table class="table table-sm table-bordered table-strriped" style="margin-top: 10px;">
     <thead>
@@ -92,6 +93,7 @@
             document.getElementById("average").innerText = e.detail.average;
             document.getElementById("count").innerText = e.detail.count;
             document.getElementById("sum").innerText = e.detail.sum;
+            document.getElementById("hasValue").innerText = e.detail.hasValue;
         })
     })
 </script>

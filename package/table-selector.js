@@ -8,15 +8,6 @@ const configOptions = {
     scrollableElem: window
 }
 
-function getTableId(event) {
-    let target = event.target;
-    if (target.tagName !== 'table') {
-        target = target.closest('table');
-    }
-    if (!target) return;
-    return target.id;
-}
-
 const useTableSelector = (config = {}) => {
     config = {...configOptions, ...config};
     let selection = [];
@@ -35,6 +26,7 @@ const useTableSelector = (config = {}) => {
                 let prevTableElem = document.getElementById(lastActiveTableId);
                 prevTableElem.id = "";
             }
+            emitSummaryInfo(lastActiveTableId);
             lastActiveTableId = "";
             Array.from(document.querySelectorAll("." + selectedClass)).forEach(x => x.classList.remove(selectedClass));
             return;
@@ -188,17 +180,23 @@ const useTableSelector = (config = {}) => {
     }
 
     function emitSummaryInfo(tableId, cells) {
-        if (!cells || cells.length <= 1) return;
-        let list = Array.from(cells).map(x => Number.parseFloat(getValueFromCell(x, config.textRetriever)));
-        const count = list.length;
-        list = list.filter(x => !isNaN(x));
-        const numCount = list.length;
-        const sum = list.reduce((res, item) => res + item, 0);
         const result = {
             tableId: tableId,
-            sum: sum,
-            average: sum / numCount,
-            count: count
+            sum: 0,
+            average: 0,
+            count: 0,
+            hasValue: false
+        };
+        if (cells && cells.length > 1) {
+            let list = Array.from(cells).map(x => Number.parseFloat(getValueFromCell(x, config.textRetriever)));
+            const count = list.length;
+            list = list.filter(x => !isNaN(x));
+            const numCount = list.length;
+            const sum = list.reduce((res, item) => res + item, 0);
+            result.average = sum / numCount;
+            result.sum = sum;
+            result.count = count;
+            result.hasValue = true;
         }
         document.dispatchEvent(new CustomEvent('table-summary', {detail: result, bubbles: true}));
     }
