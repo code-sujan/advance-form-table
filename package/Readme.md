@@ -30,8 +30,8 @@ Demo : https://advance-form-table.netlify.app
 import useTableSelector from "table-data-selector/table-selector.js";
 
 window.addEventListener("DOMContentLoaded", (ev) => {
-        const tableSelector = useTableSelector(config);
-    })
+    const tableSelector = useTableSelector(config);
+})
 
 ```
 
@@ -44,7 +44,7 @@ window.addEventListener("DOMContentLoaded", (ev) => {
     handleCopy: false,     // handle copy event when set true
     handleDelete: false,    // handle delete keypress when set true,
     textRetriver: (elem) => elem.textContent,
-    scrollableContainer: window   
+    scrollableElem: window
 }
 
 ```

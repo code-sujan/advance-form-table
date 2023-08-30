@@ -1,7 +1,7 @@
 {
     "name": "table-data-selector",
-    "version": "1.2.0",
-    "description": "Table Data Selector with scroll feature. Select necessary rows / cols, copy, paste to excel",
+    "version": "1.3.0",
+    "description": "Select necessary rows / cols, copy, paste to excel",
     "main": "table-selector.js",
     "type": "module",
     "scripts": {

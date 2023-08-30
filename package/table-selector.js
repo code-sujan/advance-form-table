@@ -4,7 +4,17 @@ const configOptions = {
     skipClass: [],
     handleCopy: false,
     handleDelete: false,
-    textRetriever: null,
+    textRetriever: (x) => x.textContent,
+    scrollableElem: window
+}
+
+function getTableId(event) {
+    let target = event.target;
+    if (target.tagName !== 'table') {
+        target = target.closest('table');
+    }
+    if (!target) return;
+    return target.id;
 }
 
 const useTableSelector = (config = {}) => {
@@ -178,7 +188,7 @@ const useTableSelector = (config = {}) => {
     }
 
     function emitSummaryInfo(tableId, cells) {
-        if(!cells || cells.length <=1) return;
+        if (!cells || cells.length <= 1) return;
         let list = Array.from(cells).map(x => Number.parseFloat(getValueFromCell(x, config.textRetriever)));
         const count = list.length;
         list = list.filter(x => !isNaN(x));
@@ -203,7 +213,7 @@ const useTableSelector = (config = {}) => {
         let arr = [];
         if (!start) return arr;
         if (!end || start === end) {
-            arr[rowIndex(start)] = [tableElem.rows[rowIndex(start)].cells[cellIndex(start)]];
+            arr[rowIndex(start)] = tableElem.rows[rowIndex(start)].cells[cellIndex(start)];
             return arr;
         } else {
             const maxRow = Math.max(rowIndex(start), rowIndex(end));
@@ -223,14 +233,14 @@ const useTableSelector = (config = {}) => {
         return getCells(tableId, selected.start, selected.end);
     }
 
-    function getSelectedValues(tableId, textRetriver = null) {
+    function getSelectedValues(tableId) {
         const selected = selection[tableId];
         const selectedElems = getRowWiseCells(tableId, selected.start, selected.end);
-        let rowWiseValues = selectedElems.map(x => x.map(x => getValueFromCell(x, textRetriver)).join('\t'));
+        let rowWiseValues = selectedElems.map(x => x.map(x => getValueFromCell(x)).join('\t'));
         return rowWiseValues.join("\r\n");
     }
 
-    function getValueFromCell(elem, textRetriever) {
+    function getValueFromCell(elem) {
         let inputElem = elem.querySelector("input");
         if (inputElem) {
             if (inputElem.type === 'checkbox') return (inputElem.checked).toString();
@@ -243,8 +253,7 @@ const useTableSelector = (config = {}) => {
 
         let selectElem = elem.querySelector("select");
         if (selectElem) return selectElem.options[selectElem.selectedIndex].text;
-        textRetriever ??= (x) => x.textContent;
-        return textRetriever(elem);
+        return config.textRetriever(elem);
     }
 
     function getRadioElems(parentElem, name) {
@@ -254,55 +263,56 @@ const useTableSelector = (config = {}) => {
     const rowIndex = (value) => parseInt(value / Multiplier);
     const cellIndex = (value) => value % Multiplier;
 
+    const Extend_X_Scroll_Length = 50;
+    const Extend_Y_Top_Scroll_Length = 20;
+    const Extend_Y_Bottom_Scroll_Length = 30;
+    const getWidth = (elem) => elem.offsetWidth ?? elem.innerWidth;
+    const getHeight = (elem) => elem.offsetHeight ?? elem.innerHeight;
+
+    function MakeVisibleOnViewPort(elem) {
+        let data = elem.getBoundingClientRect();
+        if (data.left - data.width - Extend_X_Scroll_Length <= -data.width) scrollLeft(data);
+        else if (data.top - data.height - Extend_Y_Top_Scroll_Length <= -data.height) scrollUp(data);
+        else if (Math.floor(data.right) + Extend_X_Scroll_Length >= getWidth(config.scrollableElem)) scrollRight(data);
+        else if (data.bottom + Extend_Y_Bottom_Scroll_Length >= getHeight(config.scrollableElem)) scrollDown(data);
+    }
+
+    function scrollLeft(data) {
+        config.scrollableElem.scrollBy({
+            top: 0,
+            left: Math.floor(data.left) - Extend_X_Scroll_Length,
+            behavior: "smooth"
+        });
+    }
+
+    function scrollUp(data) {
+        config.scrollableElem.scrollBy({
+            top: Math.floor(data.top) - Extend_Y_Top_Scroll_Length,
+            left: 0,
+            behavior: "smooth"
+        });
+    }
+
+    function scrollRight(data) {
+        config.scrollableElem.scrollBy({
+            top: 0,
+            left: Math.floor(data.right - getWidth(config.scrollableElem)) + Extend_X_Scroll_Length,
+            behavior: "smooth"
+        });
+    }
+
+    function scrollDown(data) {
+        config.scrollableElem.scrollBy({
+            top: Math.floor(data.bottom - getHeight(config.scrollableElem)) + Extend_Y_Bottom_Scroll_Length,
+            left: 0,
+            behavior: "smooth"
+        });
+    }
+
     return {
         getSelectedCells,
         getSelectedValues
     };
 }
 
-const Extend_X_Scroll_Length = 50;
-const Extend_Y_Top_Scroll_Length = 20;
-const Extend_Y_Bottom_Scroll_Length = 30;
-
-function MakeVisibleOnViewPort(elem) {
-    let data = elem.getBoundingClientRect();
-    if (data.left - data.width - Extend_X_Scroll_Length <= -data.width) scrollLeft(data);
-    else if (data.top - data.height - Extend_Y_Top_Scroll_Length <= -data.height) scrollUp(data);
-    else if (Math.floor(data.right) + Extend_X_Scroll_Length >= (window.innerWidth || document.documentElement.clientWidth)) scrollRight(data);
-    else if (data.bottom + Extend_Y_Bottom_Scroll_Length >= (window.innerHeight || document.documentElement.clientHeight)) scrollDown(data);
-}
-
-function scrollLeft(data) {
-    window.scrollBy({
-        top: 0,
-        left: Math.floor(data.left) - Extend_X_Scroll_Length,
-        behavior: "smooth"
-    });
-}
-
-function scrollUp(data) {
-    window.scrollBy({
-        top: Math.floor(data.top) - Extend_Y_Top_Scroll_Length,
-        left: 0,
-        behavior: "smooth"
-    });
-}
-
-function scrollRight(data) {
-    window.scrollBy({
-        top: 0,
-        left: Math.floor(data.right - window.innerWidth) + Extend_X_Scroll_Length,
-        behavior: "smooth"
-    });
-}
-
-function scrollDown(data) {
-    window.scrollBy({
-        top: Math.floor(data.bottom - window.innerHeight) + Extend_Y_Bottom_Scroll_Length,
-        left: 0,
-        behavior: "smooth"
-    });
-}
-
 export default useTableSelector;
-
