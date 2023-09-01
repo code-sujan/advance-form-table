@@ -22,6 +22,8 @@ Demo : https://advance-form-table.netlify.app
 
 > Keyboard navigation `Shift + Arrow key` can be done once selection has started.
 
+> Use `CTRL + SHIFT` to scroll all the way
+
 ```html
 <link rel="stylesheet" href="table-data-selector/table-selector.css"/>
 ```
@@ -39,13 +41,13 @@ window.addEventListener("DOMContentLoaded", (ev) => {
 ```js
 {
     selectedClass : null,   // class applied on selected cell
-        useOnClass: [],        // not applied yet
-        skipClass: [],         // not applied yet
-        handleCopy: false,     // handle copy event when set true
-        handleDelete: false,    // handle delete keypress when set true,
-        textRetriver: (elem) => elem.textContent,
-        scrollableElem: window,
-        summaryClass : 'table-selector-summary-display'
+    useOnClass: [],        // not applied yet
+    skipClass: [],         // not applied yet
+    handleCopy: false,     // handle copy event when set true
+    handleDelete: false,    // handle delete keypress when set true,
+    textRetriver: (elem) => elem.textContent,
+    scrollableElemRetriever: () => window, //method returning scrollable element
+    summaryClass : 'table-selector-summary-display'
 }
 
 ```
