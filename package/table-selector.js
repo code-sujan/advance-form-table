@@ -6,9 +6,7 @@ const configOptions = {
     handleDelete: false,
     textRetriever: (x) => x.textContent,
     scrollableElemRetriever: () => window,
-    summaryClass: 'table-selector-summary-display',
-    scrollXFix: 0,
-    scrollYFix: 0
+    summaryClass: 'table-selector-summary-display'
 }
 
 const useTableSelector = (config = {}) => {
