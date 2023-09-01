@@ -207,7 +207,14 @@ const useTableSelector = (config = {}) => {
             hasValue: false
         };
         if (cells && cells.length > 1) {
-            let list = Array.from(cells).map(x => Number.parseFloat(getValueFromCell(x, config.textRetriever)));
+            let list = Array.from(cells).map(x => {
+                let cellValue = getValueFromCell(x, config.textRetriever);
+                if(cellValue.startsWith('(') && cellValue.endsWith(')')){
+                    cellValue = '-'+cellValue.replace(/[()]/g, '');
+                }
+                const cleanedInput = cellValue.replace(/,/g, '');
+                return Number.parseFloat(cleanedInput);
+            });
             const count = list.length;
             list = list.filter(x => !isNaN(x));
             const numCount = list.length;
