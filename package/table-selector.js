@@ -5,8 +5,10 @@ const configOptions = {
     handleCopy: false,
     handleDelete: false,
     textRetriever: (x) => x.textContent,
-    scrollableElem: window,
-    summaryClass: 'table-selector-summary-display'
+    scrollableElemRetriever : () => window,
+    summaryClass: 'table-selector-summary-display',
+    scrollXFix: 0,
+    scrollYFix: 0
 }
 
 const useTableSelector = (config = {}) => {
@@ -262,48 +264,58 @@ const useTableSelector = (config = {}) => {
 
     const rowIndex = (value) => parseInt(value / Multiplier);
     const cellIndex = (value) => value % Multiplier;
-
-    const Extend_X_Scroll_Length = 50;
-    const Extend_Y_Top_Scroll_Length = 20;
-    const Extend_Y_Bottom_Scroll_Length = 30;
     const getWidth = (elem) => elem.offsetWidth ?? elem.innerWidth;
     const getHeight = (elem) => elem.offsetHeight ?? elem.innerHeight;
 
     function MakeVisibleOnViewPort(elem) {
         let data = elem.getBoundingClientRect();
-        if (data.left - data.width - Extend_X_Scroll_Length <= -data.width) scrollLeft(data);
-        else if (data.top - data.height - Extend_Y_Top_Scroll_Length <= -data.height) scrollUp(data);
-        else if (Math.floor(data.right) + Extend_X_Scroll_Length >= getWidth(config.scrollableElem)) scrollRight(data);
-        else if (data.bottom + Extend_Y_Bottom_Scroll_Length >= getHeight(config.scrollableElem)) scrollDown(data);
+        let scrollableElem = config.scrollableElemRetriever();
+        let top = data.top;
+        let left = data.left;
+        let bottom = data.bottom;
+        let right = data.right;
+        if(scrollableElem !== window){
+            let scrollElemData = scrollableElem.getBoundingClientRect();
+            top -= scrollElemData.top;
+            left -= scrollElemData.left;
+            right -= scrollElemData.left;
+            bottom -= scrollElemData.top;
+        }
+        const windowHeight = getHeight(config.scrollableElemRetriever());
+        const windowWidth = getWidth(config.scrollableElemRetriever());
+        if (left - data.width <= 0) scrollLeft(left-data.width);
+        else if (top - data.height <= 0) scrollUp((top-data.height));
+        else if (Math.floor(right) + data.width >= windowWidth) scrollRight((Math.floor(right) + data.width) - windowWidth);
+        else if (bottom + data.height >= windowHeight) scrollDown((bottom + data.height) - windowHeight);
     }
 
-    function scrollLeft(data) {
-        config.scrollableElem.scrollBy({
+    function scrollLeft(value) {
+        config.scrollableElemRetriever().scrollBy({
             top: 0,
-            left: Math.floor(data.left) - Extend_X_Scroll_Length,
+            left: value,
             behavior: "smooth"
         });
     }
 
-    function scrollUp(data) {
-        config.scrollableElem.scrollBy({
-            top: Math.floor(data.top) - Extend_Y_Top_Scroll_Length,
+    function scrollUp(value) {
+        config.scrollableElemRetriever().scrollBy({
+            top: value,
             left: 0,
             behavior: "smooth"
         });
     }
 
-    function scrollRight(data) {
-        config.scrollableElem.scrollBy({
+    function scrollRight(value) {
+        config.scrollableElemRetriever().scrollBy({
             top: 0,
-            left: Math.floor(data.right - getWidth(config.scrollableElem)) + Extend_X_Scroll_Length,
+            left: value,
             behavior: "smooth"
         });
     }
 
-    function scrollDown(data) {
-        config.scrollableElem.scrollBy({
-            top: Math.floor(data.bottom - getHeight(config.scrollableElem)) + Extend_Y_Bottom_Scroll_Length,
+    function scrollDown(value) {
+        config.scrollableElemRetriever().scrollBy({
+            top: value,
             left: 0,
             behavior: "smooth"
         });
