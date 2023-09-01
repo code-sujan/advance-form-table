@@ -5,7 +5,7 @@ const configOptions = {
     handleCopy: false,
     handleDelete: false,
     textRetriever: (x) => x.textContent,
-    scrollableElemRetriever : () => window,
+    scrollableElemRetriever: () => window,
     summaryClass: 'table-selector-summary-display',
     scrollXFix: 0,
     scrollYFix: 0
@@ -85,31 +85,48 @@ const useTableSelector = (config = {}) => {
         if (ev.code === "ArrowLeft") {
             selected.prevEnd = selected.end;
             if (cellIndex(selected.end) === 0) return;
-            selected.end = rowIndex(selected.end) * Multiplier + cellIndex(selected.end) - 1;
+            if (ev.ctrlKey) {
+                selected.end = rowIndex(selected.end) * Multiplier;
+            } else {
+                selected.end = rowIndex(selected.end) * Multiplier + cellIndex(selected.end) - 1;
+            }
         }
         if (ev.code === "ArrowRight") {
             let selected = getActiveSection(lastActiveTableId);
             selected.prevEnd = selected.end;
             if (cellIndex(selected.end) === maxCellIndex) return;
-            selected.end = rowIndex(selected.end) * Multiplier + cellIndex(selected.end) + 1;
+            if (ev.ctrlKey) {
+                selected.end = rowIndex(selected.end) * Multiplier + maxCellIndex;
+            } else {
+                selected.end = rowIndex(selected.end) * Multiplier + cellIndex(selected.end) + 1;
+            }
         }
         if (ev.code === "ArrowUp") {
             selected.prevEnd = selected.end;
             if (rowIndex(selected.end) === 1) return;
-            selected.end -= Multiplier;
+            if (ev.ctrlKey) {
+                selected.end = Multiplier + cellIndex(selected.end);
+            } else {
+                selected.end -= Multiplier;
+            }
         }
         if (ev.code === "ArrowDown") {
             let selected = getActiveSection(lastActiveTableId);
             if (rowIndex(selected.end) === maxRowIndex) return;
             selected.prevEnd = selected.end;
-            selected.end += Multiplier
+            if(ev.ctrlKey){
+                selected.end = Multiplier * maxRowIndex + cellIndex(selected.end);
+            }
+            else {
+                selected.end += Multiplier;
+            }
         }
         displaySelectedCell(lastActiveTableId);
     });
 
     if (config.handleCopy) {
         document.body.addEventListener('copy', (ev) => {
-            if(ev.target.closest(`.${config.summaryClass}`)) return;
+            if (ev.target.closest(`.${config.summaryClass}`)) return;
             const tableId = lastActiveTableId;
             if (!selection[tableId]) return;
             ev.clipboardData.setData('text/plain', getSelectedValues(tableId));
@@ -274,7 +291,7 @@ const useTableSelector = (config = {}) => {
         let left = data.left;
         let bottom = data.bottom;
         let right = data.right;
-        if(scrollableElem !== window){
+        if (scrollableElem !== window) {
             let scrollElemData = scrollableElem.getBoundingClientRect();
             top -= scrollElemData.top;
             left -= scrollElemData.left;
@@ -283,8 +300,8 @@ const useTableSelector = (config = {}) => {
         }
         const windowHeight = getHeight(config.scrollableElemRetriever());
         const windowWidth = getWidth(config.scrollableElemRetriever());
-        if (left - data.width <= 0) scrollLeft(left-data.width);
-        else if (top - data.height <= 0) scrollUp((top-data.height));
+        if (left - data.width <= 0) scrollLeft(left - data.width);
+        else if (top - data.height <= 0) scrollUp((top - data.height));
         else if (Math.floor(right) + data.width >= windowWidth) scrollRight((Math.floor(right) + data.width) - windowWidth);
         else if (bottom + data.height >= windowHeight) scrollDown((bottom + data.height) - windowHeight);
     }
